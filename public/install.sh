@@ -652,7 +652,13 @@ EOF
         else
             echo -e "Starting setup..."
             echo ""
-            exec clawdbot onboard
+            if [[ -r /dev/tty && -w /dev/tty ]]; then
+                exec </dev/tty
+                exec clawdbot onboard
+            fi
+            echo -e "${WARN}→${NC} No TTY available; skipping onboarding."
+            echo -e "Run ${INFO}clawdbot onboard${NC} later."
+            return 0
         fi
     fi
 
