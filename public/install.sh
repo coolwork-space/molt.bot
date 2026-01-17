@@ -174,6 +174,7 @@ NO_PROMPT=${CLAWDBOT_NO_PROMPT:-0}
 DRY_RUN=${CLAWDBOT_DRY_RUN:-0}
 INSTALL_METHOD=${CLAWDBOT_INSTALL_METHOD:-}
 CLAWDBOT_VERSION=${CLAWDBOT_VERSION:-latest}
+USE_BETA=${CLAWDBOT_BETA:-0}
 GIT_DIR_DEFAULT="${HOME}/clawdbot"
 GIT_DIR=${CLAWDBOT_GIT_DIR:-$GIT_DIR_DEFAULT}
 GIT_UPDATE=${CLAWDBOT_GIT_UPDATE:-1}
@@ -193,6 +194,7 @@ Options:
   --npm                               Shortcut for --install-method npm
   --git, --github                     Shortcut for --install-method git
   --version <version|dist-tag>         npm install: version (default: latest)
+  --beta                               Use beta if available, else latest
   --git-dir, --dir <path>             Checkout directory (default: ~/clawdbot)
   --no-git-update                      Skip git pull for existing checkout
   --no-onboard                          Skip onboarding (non-interactive)
@@ -203,6 +205,7 @@ Options:
 Environment variables:
   CLAWDBOT_INSTALL_METHOD=git|npm
   CLAWDBOT_VERSION=latest|next|<semver>
+  CLAWDBOT_BETA=0|1
   CLAWDBOT_GIT_DIR=...
   CLAWDBOT_GIT_UPDATE=0|1
   CLAWDBOT_NO_PROMPT=1
@@ -247,6 +250,10 @@ parse_args() {
             --version)
                 CLAWDBOT_VERSION="$2"
                 shift 2
+                ;;
+            --beta)
+                USE_BETA=1
+                shift
                 ;;
             --npm)
                 INSTALL_METHOD="npm"
@@ -686,10 +693,31 @@ EOF
 }
 
 # Install Clawdbot
+resolve_beta_version() {
+    local beta=""
+    beta="$(npm view clawdbot dist-tags.beta 2>/dev/null || true)"
+    if [[ -z "$beta" || "$beta" == "undefined" || "$beta" == "null" ]]; then
+        return 1
+    fi
+    echo "$beta"
+}
+
 install_clawdbot() {
     echo -e "${WARN}→${NC} Installing Clawdbot..."
     if [[ "$SHARP_IGNORE_GLOBAL_LIBVIPS" == "1" ]]; then
         echo -e "${INFO}i${NC} Using SHARP_IGNORE_GLOBAL_LIBVIPS=1 (avoids sharp source builds against global libvips)"
+    fi
+
+    if [[ "$USE_BETA" == "1" ]]; then
+        local beta_version=""
+        beta_version="$(resolve_beta_version || true)"
+        if [[ -n "$beta_version" ]]; then
+            CLAWDBOT_VERSION="$beta_version"
+            echo -e "${INFO}i${NC} Beta tag detected (${beta_version}); installing beta."
+        else
+            CLAWDBOT_VERSION="latest"
+            echo -e "${INFO}i${NC} No beta tag found; installing latest."
+        fi
     fi
 
     if [[ -z "${CLAWDBOT_VERSION}" ]]; then
