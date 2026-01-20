@@ -10,13 +10,39 @@ else
   INSTALL_URL="https://clawd.bot/install.sh"
 fi
 
+npm_view() {
+  local out=""
+  local attempt=1
+  while [[ "$attempt" -le 3 ]]; do
+    if out="$(NPM_CONFIG_LOGLEVEL=error NPM_CONFIG_UPDATE_NOTIFIER=false \
+      NPM_CONFIG_FUND=false NPM_CONFIG_AUDIT=false \
+      npm view "$@" 2>/tmp/npm-view.err)"; then
+      printf '%s' "$out"
+      return 0
+    fi
+    sleep "$attempt"
+    attempt=$((attempt + 1))
+  done
+  cat /tmp/npm-view.err >&2
+  return 1
+}
+
 echo "==> Resolve npm versions"
-LATEST_VERSION="$(npm view clawdbot dist-tags.latest)"
-NEXT_VERSION="$(npm view clawdbot dist-tags.next)"
+LATEST_VERSION="$(npm_view clawdbot dist-tags.latest)"
+NEXT_VERSION="$(npm_view clawdbot dist-tags.next)"
 PREVIOUS_VERSION="$(NEXT_VERSION="$NEXT_VERSION" node - <<'NODE'
 const { execSync } = require("node:child_process");
 
-const versions = JSON.parse(execSync("npm view clawdbot versions --json", { encoding: "utf8" }));
+const versions = JSON.parse(execSync("npm view clawdbot versions --json", {
+  encoding: "utf8",
+  env: {
+    ...process.env,
+    NPM_CONFIG_LOGLEVEL: "error",
+    NPM_CONFIG_UPDATE_NOTIFIER: "false",
+    NPM_CONFIG_FUND: "false",
+    NPM_CONFIG_AUDIT: "false"
+  }
+}));
 if (!Array.isArray(versions) || versions.length === 0) {
   process.exit(1);
 }
@@ -79,8 +105,13 @@ touch "$TMP_REPO/pnpm-workspace.yaml"
   curl_install | bash -s -- --dry-run --no-onboard --no-prompt >/tmp/repo-detect.out 2>&1
   code=$?
   set -e
-  if [[ "$code" -eq 0 ]]; then
-    echo "ERROR: expected repo-detect dry-run to fail without --install-method" >&2
+  if [[ "$code" -ne 0 ]]; then
+    echo "ERROR: expected repo-detect dry-run to succeed without --install-method" >&2
+    cat /tmp/repo-detect.out >&2
+    exit 1
+  fi
+  if ! sed -r 's/\x1b\[[0-9;]*m//g' /tmp/repo-detect.out | grep -q "Install method: npm"; then
+    echo "ERROR: expected repo-detect dry-run to default to npm install" >&2
     cat /tmp/repo-detect.out >&2
     exit 1
   fi
