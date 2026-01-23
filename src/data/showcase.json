@@ -629,5 +629,36 @@
     "quote": "Is this legal? It feels illegal…\n\nHaving so much fun with @clawdbot: Check out how after a bit of hacking I can ask it to send me the track of this song as an audio, extract some cool GIFs and finally send me a PDF with chords?\n\nMind: blown!",
     "category": "creative",
     "likes": 3
+  },
+  {
+    "id": "2014481698369536402",
+    "author": "danpeguine",
+    "quote": "Two different @clawdbot can collaborate!!!\n\n@assafdagan and I put our bots in the same WhatsApp group and they are collaborating!!!",
+    "category": "integration",
+    "likes": 83,
+    "images": [
+      "https://pbs.twimg.com/media/G_TdraVXEAA9H85.jpg"
+    ]
+  },
+  {
+    "id": "2014608153393168425",
+    "author": "cedric_chee",
+    "quote": "@Clawdbot is my media studio for the creator. I hooked it up to Codex 5.2 and Minimax-M2.1 (as fallback). Some Skills in action:\n- Kyutai Pocket TTS\n- Whisper audio transcribe\n- Browser use (web scraping, form filling)\n- Twitter ops\n\nI hacked this up in <5 days, all on my mobile while I was on the move.",
+    "category": "creative",
+    "likes": 2,
+    "images": [
+      "https://pbs.twimg.com/media/G_VTbQ7bAAMT8t-.jpg",
+      "https://pbs.twimg.com/media/G_VTbRkbAAMqUaS.jpg"
+    ]
+  },
+  {
+    "id": "2014590075972247640",
+    "author": "Ysqander",
+    "quote": "I love @clawdbot. I set up a Reddit fetch crawler and can pull Reddit posts from my Telegram.",
+    "category": "automation",
+    "likes": 1,
+    "images": [
+      "https://pbs.twimg.com/media/G_VC_k6bAAQNfJ0.jpg"
+    ]
   }
 ]
