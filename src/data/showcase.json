@@ -95,14 +95,14 @@
   {
     "id": "2012313149576302746",
     "author": "chrisrodz35",
-    "quote": "@moltbot short story;\n\nWeek 1 - Set it up for my family\nWeek 2 - Set it up for some non-techie friends\nWeek 3 - We're building clawd for work",
+    "quote": "@moltbot short story;\n\nWeek 1 - Set it up for my family\nWeek 2 - Set it up for some non-techie friends\nWeek 3 - We're building claw for work",
     "category": "personal",
     "likes": 82
   },
   {
     "id": "2012028725710192741",
     "author": "jdrhyne",
-    "quote": "Just built a GA4 skill for @moltbot in ~20 minutes.\n\nSolved my own problem → packaged it → published to ClawdHub.\n\nNow anyone can `clawdhub install ga4` and start querying their analytics.\n\nThe best part of agent skills: pay it forward so the next person doesn't have to figure it out.",
+    "quote": "Just built a GA4 skill for @moltbot in ~20 minutes.\n\nSolved my own problem → packaged it → published to ClawHub.\n\nNow anyone can `clawhub install ga4` and start querying their analytics.\n\nThe best part of agent skills: pay it forward so the next person doesn't have to figure it out.",
     "category": "developer",
     "likes": 42,
     "images": [
@@ -156,7 +156,7 @@
   {
     "id": "2008336434827002232",
     "author": "jdrhyne",
-    "quote": "Honestly, @moltbot is super powerful because of its ease of use. It literally just connected to JIRA and built a skill since it wasn't on @clawdhub yet. Look how simple it was",
+    "quote": "Honestly, @moltbot is super powerful because of its ease of use. It literally just connected to JIRA and built a skill since it wasn't on @clawhub yet. Look how simple it was",
     "category": "developer",
     "likes": 46,
     "images": [
@@ -166,7 +166,7 @@
   {
     "id": "2008970037013381165",
     "author": "tonylongname",
-    "quote": "Now my home's PM. Wife and I drop topics anytime, Clawd researches, Sunday 9am sends the roundup.",
+    "quote": "Now my home's PM. Wife and I drop topics anytime, Claw researches, Sunday 9am sends the roundup.",
     "category": "family",
     "likes": 27
   },
@@ -191,7 +191,7 @@
   {
     "id": "2009424267801485362",
     "author": "MagiMetal",
-    "quote": "Just built a Swift macOS menu bar app with @moltbot to manage ClawdBot! 🤖⚡\n\nShows gateway status, Discord connection, lets me start/stop/restart, view logs, and has notifications for status changes.\n\nBuilt it together in about an hour.",
+    "quote": "Just built a Swift macOS menu bar app with @moltbot to manage OpenClaw! 🤖⚡\n\nShows gateway status, Discord connection, lets me start/stop/restart, view logs, and has notifications for status changes.\n\nBuilt it together in about an hour.",
     "category": "developer",
     "likes": 23,
     "images": [
@@ -228,7 +228,7 @@
   {
     "id": "2013024865393975718",
     "author": "bangkokbuild",
-    "quote": "Gave Clawd access to:\n• Garmin Watch\n• Obsidian Vault\n• GitHub repos\n• VPS\n• Telegram + Whatsapp\n• X\n\nNow it:\n• Logs my sleep/health/exercise data and tells me when I stay up too late\n• Writes code and deploys it\n• Updates Obsidian daily notes\n• Tracks who visits MenuCapture and where they came from\n• Monitors earthquakes in Tokyo\n• Researches stuff online and saves files to my desktop\n• Remembers my projects, patterns and preferences\n• Reminds me of my schedule, including holidays/accommodation\n• Checks on me (on Telegram!) if I'm quiet too long",
+    "quote": "Gave Claw access to:\n• Garmin Watch\n• Obsidian Vault\n• GitHub repos\n• VPS\n• Telegram + Whatsapp\n• X\n\nNow it:\n• Logs my sleep/health/exercise data and tells me when I stay up too late\n• Writes code and deploys it\n• Updates Obsidian daily notes\n• Tracks who visits MenuCapture and where they came from\n• Monitors earthquakes in Tokyo\n• Researches stuff online and saves files to my desktop\n• Remembers my projects, patterns and preferences\n• Reminds me of my schedule, including holidays/accommodation\n• Checks on me (on Telegram!) if I'm quiet too long",
     "category": "integration",
     "likes": 3
   },
@@ -289,7 +289,7 @@
   {
     "id": "2011586646458708138",
     "author": "5katkov",
-    "quote": "ClawdBot is fully operational.\n\nIt can manage my calendar, obsidian, it can use browser now. It send me reminders, plans my itirenary. Contributes to my GitHub repositories.\n\nThis bot is my bitch now.",
+    "quote": "OpenClaw is fully operational.\n\nIt can manage my calendar, obsidian, it can use browser now. It send me reminders, plans my itirenary. Contributes to my GitHub repositories.\n\nThis bot is my bitch now.",
     "category": "productivity",
     "likes": 11
   },
@@ -330,7 +330,7 @@
   {
     "id": "2007656142105661693",
     "author": "buddyhadry",
-    "quote": "Having too much fun building new CLIs / skills to work with @steipete's @moltbot.\n\nJust built an alexa cli to control your Alexa devices (including all Alexa-enabled smart home devices) with Clawdis / Claude Code / Codex / your agent of choice.\n\nSupports natural language text commands that can mimic anything you'd say to an Echo.",
+    "quote": "Having too much fun building new CLIs / skills to work with @steipete's @moltbot.\n\nJust built an alexa cli to control your Alexa devices (including all Alexa-enabled smart home devices) with Clawis / Claude Code / Codex / your agent of choice.\n\nSupports natural language text commands that can mimic anything you'd say to an Echo.",
     "category": "smart-home",
     "likes": 16
   },
@@ -521,7 +521,7 @@
   {
     "id": "2013089630317355014",
     "author": "LLMJunky",
-    "quote": "You should try to think of Clawd as an orchestration layer that can interface with not only your entire machine, but the rest of your coding agents as well.\n\nAnd what makes it supremely useful, in my opinion, is that inferface is now available to you on all of your devices at the same time - especially mobile!\n\nThis means that anything you can do on your local dev machine, you can now do with simple voice memos on your phone.\n\nWorking on a project? Think of some idea while walking to the train? No problem. Drop Clawd a message, tell it to goto your project directory, spin up an agent, and build that feature.",
+    "quote": "You should try to think of Claw as an orchestration layer that can interface with not only your entire machine, but the rest of your coding agents as well.\n\nAnd what makes it supremely useful, in my opinion, is that inferface is now available to you on all of your devices at the same time - especially mobile!\n\nThis means that anything you can do on your local dev machine, you can now do with simple voice memos on your phone.\n\nWorking on a project? Think of some idea while walking to the train? No problem. Drop Claw a message, tell it to goto your project directory, spin up an agent, and build that feature.",
     "category": "developer",
     "likes": 3
   },
@@ -612,7 +612,7 @@
   {
     "id": "2013196232181637500",
     "author": "christinetyip",
-    "quote": "I connected mine to an external memory layer - check out the shared-memory skill in clawdhub.\n\nMoltbot helps me build my second brain and selectively shares context and state with my partner's moltbot.",
+    "quote": "I connected mine to an external memory layer - check out the shared-memory skill in clawhub.\n\nMoltbot helps me build my second brain and selectively shares context and state with my partner's moltbot.",
     "category": "integration",
     "likes": 1
   },
@@ -664,7 +664,7 @@
   {
     "id": "2014797672419340435",
     "author": "nateliason",
-    "quote": "My new favorite way to work with Moltbot:\n\n1. Tell it we're working on app improvements, it should just take notes\n2. Run through user flows, send screenshots with notes as I find issues\n3. It builds a list of work, adds its own hypotheses\n4. Writes up a full report on what to do\n5. I say \"Go\" and it kicks off Codex agents to attack the different pieces, opening separate PRs\n6. Claude reviews & improves the PRs on Github\n7. Clawd makes a doc of everything we did + what to test\n8. Next time I test, I start with that list to make sure everything worked",
+    "quote": "My new favorite way to work with Moltbot:\n\n1. Tell it we're working on app improvements, it should just take notes\n2. Run through user flows, send screenshots with notes as I find issues\n3. It builds a list of work, adds its own hypotheses\n4. Writes up a full report on what to do\n5. I say \"Go\" and it kicks off Codex agents to attack the different pieces, opening separate PRs\n6. Claude reviews & improves the PRs on Github\n7. Claw makes a doc of everything we did + what to test\n8. Next time I test, I start with that list to make sure everything worked",
     "category": "developer",
     "likes": 239,
     "images": [
