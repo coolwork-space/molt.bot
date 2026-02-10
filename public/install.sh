@@ -179,16 +179,14 @@ bootstrap_gum_temp() {
         return 1
     fi
 
-    local have_checksums=0
-    if download_file "${base}/checksums.txt" "$gum_tmpdir/checksums.txt"; then
-        have_checksums=1
+    if ! download_file "${base}/checksums.txt" "$gum_tmpdir/checksums.txt"; then
+        GUM_REASON="checksum unavailable or failed"
+        return 1
     fi
 
-    if [[ "$have_checksums" == "1" ]]; then
-        if ! (cd "$gum_tmpdir" && verify_sha256sum_file "checksums.txt"); then
-            GUM_REASON="checksum verification failed"
-            return 1
-        fi
+    if ! (cd "$gum_tmpdir" && verify_sha256sum_file "checksums.txt"); then
+        GUM_REASON="checksum unavailable or failed"
+        return 1
     fi
 
     if ! tar -xzf "$gum_tmpdir/$asset" -C "$gum_tmpdir" >/dev/null 2>&1; then
@@ -210,11 +208,7 @@ bootstrap_gum_temp() {
 
     GUM="$gum_path"
     GUM_STATUS="installed"
-    if [[ "$have_checksums" == "1" ]]; then
-        GUM_REASON="temp, verified"
-    else
-        GUM_REASON="temp, unverified"
-    fi
+    GUM_REASON="temp, verified"
     return 0
 }
 
