@@ -506,6 +506,112 @@ cleanup_openclaw_bin_conflict() {
     return 1
 }
 
+npm_log_indicates_missing_build_tools() {
+    local log="$1"
+    if [[ -z "$log" || ! -f "$log" ]]; then
+        return 1
+    fi
+
+    grep -Eiq "(not found: make|make: command not found|cmake: command not found|CMAKE_MAKE_PROGRAM is not set|Could not find CMAKE|gyp ERR! find Python|no developer tools were found|is not able to compile a simple test program|Failed to build llama\\.cpp|It seems that \"make\" is not installed in your system|It seems that the used \"cmake\" doesn't work properly)" "$log"
+}
+
+install_build_tools_linux() {
+    require_sudo
+
+    if command -v apt-get &> /dev/null; then
+        if is_root; then
+            run_quiet_step "Updating package index" apt-get update -qq
+            run_quiet_step "Installing build tools" apt-get install -y -qq build-essential python3 make g++ cmake
+        else
+            run_quiet_step "Updating package index" sudo apt-get update -qq
+            run_quiet_step "Installing build tools" sudo apt-get install -y -qq build-essential python3 make g++ cmake
+        fi
+        return 0
+    fi
+
+    if command -v dnf &> /dev/null; then
+        if is_root; then
+            run_quiet_step "Installing build tools" dnf install -y -q gcc gcc-c++ make cmake python3
+        else
+            run_quiet_step "Installing build tools" sudo dnf install -y -q gcc gcc-c++ make cmake python3
+        fi
+        return 0
+    fi
+
+    if command -v yum &> /dev/null; then
+        if is_root; then
+            run_quiet_step "Installing build tools" yum install -y -q gcc gcc-c++ make cmake python3
+        else
+            run_quiet_step "Installing build tools" sudo yum install -y -q gcc gcc-c++ make cmake python3
+        fi
+        return 0
+    fi
+
+    if command -v apk &> /dev/null; then
+        if is_root; then
+            run_quiet_step "Installing build tools" apk add --no-cache build-base python3 cmake
+        else
+            run_quiet_step "Installing build tools" sudo apk add --no-cache build-base python3 cmake
+        fi
+        return 0
+    fi
+
+    ui_warn "Could not detect package manager for auto-installing build tools"
+    return 1
+}
+
+install_build_tools_macos() {
+    local ok=true
+
+    if ! xcode-select -p >/dev/null 2>&1; then
+        ui_info "Installing Xcode Command Line Tools (required for make/clang)"
+        xcode-select --install >/dev/null 2>&1 || true
+        if ! xcode-select -p >/dev/null 2>&1; then
+            ui_warn "Xcode Command Line Tools are not ready yet"
+            ui_info "Complete the installer dialog, then re-run this installer"
+            ok=false
+        fi
+    fi
+
+    if ! command -v cmake >/dev/null 2>&1; then
+        if command -v brew >/dev/null 2>&1; then
+            run_quiet_step "Installing cmake" brew install cmake
+        else
+            ui_warn "Homebrew not available; cannot auto-install cmake"
+            ok=false
+        fi
+    fi
+
+    if ! command -v make >/dev/null 2>&1; then
+        ui_warn "make is still unavailable"
+        ok=false
+    fi
+    if ! command -v cmake >/dev/null 2>&1; then
+        ui_warn "cmake is still unavailable"
+        ok=false
+    fi
+
+    [[ "$ok" == "true" ]]
+}
+
+auto_install_build_tools_for_npm_failure() {
+    local log="$1"
+    if ! npm_log_indicates_missing_build_tools "$log"; then
+        return 1
+    fi
+
+    ui_warn "Detected missing native build tools; attempting automatic setup"
+    if [[ "$OS" == "linux" ]]; then
+        install_build_tools_linux || return 1
+    elif [[ "$OS" == "macos" ]]; then
+        install_build_tools_macos || return 1
+    else
+        return 1
+    fi
+    ui_success "Build tools setup complete"
+    return 0
+}
+
 run_npm_global_install() {
     local spec="$1"
     local log="$2"
@@ -539,8 +645,22 @@ install_openclaw_npm() {
     local log
     log="$(mktempfile)"
     if ! run_npm_global_install "$spec" "$log"; then
+        local attempted_build_tool_fix=false
+        if auto_install_build_tools_for_npm_failure "$log"; then
+            attempted_build_tool_fix=true
+            ui_info "Retrying npm install after build tools setup"
+            if run_npm_global_install "$spec" "$log"; then
+                ui_success "OpenClaw npm package installed"
+                return 0
+            fi
+        fi
+
         if [[ "$VERBOSE" != "1" ]]; then
-            ui_warn "npm install failed; showing last log lines"
+            if [[ "$attempted_build_tool_fix" == "true" ]]; then
+                ui_warn "npm install still failed after build tools setup; showing last log lines"
+            else
+                ui_warn "npm install failed; showing last log lines"
+            fi
             tail -n 80 "$log" >&2 || true
         fi
 

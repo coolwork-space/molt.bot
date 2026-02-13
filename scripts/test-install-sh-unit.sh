@@ -266,6 +266,73 @@ EOF
   assert_eq "${PNPM_CMD[*]}" "pnpm" "ensure_pnpm (npm fallback)"
 )
 
+echo "==> case: npm_log_indicates_missing_build_tools"
+(
+  root="${TMP_DIR}/case-build-tools-signature"
+  mkdir -p "${root}"
+
+  positive_log="${root}/positive.log"
+  negative_log="${root}/negative.log"
+
+  cat >"${positive_log}" <<'EOF'
+gyp ERR! stack Error: not found: make
+EOF
+  cat >"${negative_log}" <<'EOF'
+npm ERR! code EEXIST
+EOF
+
+  if ! npm_log_indicates_missing_build_tools "${positive_log}"; then
+    fail "npm_log_indicates_missing_build_tools should detect missing build tools"
+  fi
+  if npm_log_indicates_missing_build_tools "${negative_log}"; then
+    fail "npm_log_indicates_missing_build_tools false positive"
+  fi
+)
+
+echo "==> case: install_openclaw_npm (auto-install build tools + retry)"
+(
+  root="${TMP_DIR}/case-install-openclaw-auto-build-tools"
+  mkdir -p "${root}"
+
+  export OS="linux"
+  export VERBOSE=0
+  export GUM=""
+
+  install_attempts=0
+  auto_install_called=0
+
+  run_npm_global_install() {
+    local _spec="$1"
+    local log="$2"
+    install_attempts=$((install_attempts + 1))
+    if [[ "$install_attempts" -eq 1 ]]; then
+      cat >"${log}" <<'EOF'
+gyp ERR! stack Error: not found: make
+EOF
+      return 1
+    fi
+    cat >"${log}" <<'EOF'
+ok
+EOF
+    return 0
+  }
+
+  auto_install_build_tools_for_npm_failure() {
+    local _log="$1"
+    auto_install_called=1
+    return 0
+  }
+
+  ui_info() { :; }
+  ui_success() { :; }
+  ui_warn() { :; }
+  ui_error() { :; }
+
+  install_openclaw_npm "openclaw@latest"
+  assert_eq "$install_attempts" "2" "install_openclaw_npm retry count"
+  assert_eq "$auto_install_called" "1" "install_openclaw_npm auto-install hook"
+)
+
 echo "==> case: install_openclaw_from_git (deps step uses run_pnpm function)"
 (
   root="${TMP_DIR}/case-install-git-deps"
