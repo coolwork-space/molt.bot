@@ -14,11 +14,6 @@ on:
         options:
           - dry-run
           - full
-      gum:
-        description: Enable gum UI in matrix runs (may produce control codes in logs)
-        required: true
-        default: false
-        type: boolean
 
 jobs:
   linux-install-matrix:
@@ -38,14 +33,8 @@ jobs:
 
       - name: Run matrix (push/pr)
         if: github.event_name != 'workflow_dispatch'
-        run: bash scripts/test-install-matrix.sh --mode dry-run --image "${{ matrix.image }}" --no-gum
+        run: bash scripts/test-install-matrix.sh --mode dry-run --image "${{ matrix.image }}"
 
       - name: Run matrix (manual)
         if: github.event_name == 'workflow_dispatch'
-        run: |
-          if [[ "${{ inputs.gum }}" == "true" ]]; then
-            GUM_FLAG="--gum"
-          else
-            GUM_FLAG="--no-gum"
-          fi
-          bash scripts/test-install-matrix.sh --mode "${{ inputs.mode }}" --image "${{ matrix.image }}" "$GUM_FLAG"
+        run: bash scripts/test-install-matrix.sh --mode "${{ inputs.mode }}" --image "${{ matrix.image }}"

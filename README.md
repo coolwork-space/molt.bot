@@ -43,9 +43,7 @@ The landing page hosts installer scripts:
 - **Windows**: `iwr -useb https://openclaw.ai/install.ps1 | iex`
 
 Installer UI controls (macOS/Linux `install.sh`):
-- Pass `--gum` to force gum UI when supported, or `--no-gum` to disable gum output.
-- Set `OPENCLAW_USE_GUM=auto|1|0` to control gum behavior in automation.
-- Compatibility alias: `CLAWDBOT_USE_GUM` (mapped to `OPENCLAW_USE_GUM`).
+- Gum UI is auto-detected; interactive terminals get richer status output, non-interactive shells fall back to plain output automatically.
 
 These scripts:
 1. Install Homebrew (macOS) or detect package managers (Windows)

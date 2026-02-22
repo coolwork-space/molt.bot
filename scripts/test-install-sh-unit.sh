@@ -301,11 +301,7 @@ EOF
 echo "==> case: bootstrap_gum_temp (auto disable in non-interactive shell)"
 (
   # shellcheck disable=SC2034
-  OPENCLAW_USE_GUM=auto
-  # shellcheck disable=SC2034
   GUM=""
-  # shellcheck disable=SC2034
-  GUM_STATUS="skipped"
   # shellcheck disable=SC2034
   GUM_REASON=""
 
@@ -382,6 +378,8 @@ echo "==> case: print_npm_failure_diagnostics"
 
   cat >"${log}" <<'EOF'
 npm ERR! code EACCES
+npm ERR! syscall rename
+npm ERR! errno -13
 npm ERR! A complete log of this run can be found in: /tmp/npm-debug.log
 EOF
 
@@ -392,6 +390,9 @@ EOF
 
   assert_contains "$out" "Command: env SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm --loglevel error --no-fund --no-audit install -g openclaw@latest" "print_npm_failure_diagnostics command"
   assert_contains "$out" "Installer log: ${log}" "print_npm_failure_diagnostics installer log"
+  assert_contains "$out" "npm code: EACCES" "print_npm_failure_diagnostics code"
+  assert_contains "$out" "npm syscall: rename" "print_npm_failure_diagnostics syscall"
+  assert_contains "$out" "npm errno: -13" "print_npm_failure_diagnostics errno"
   assert_contains "$out" "npm debug log: /tmp/npm-debug.log" "print_npm_failure_diagnostics debug log"
   assert_contains "$out" "First npm error: npm ERR! code EACCES" "print_npm_failure_diagnostics first error"
 )

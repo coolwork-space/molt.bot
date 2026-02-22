@@ -2,7 +2,6 @@
 set -euo pipefail
 
 MODE="dry-run"
-USE_GUM=0
 IMAGES=()
 
 usage() {
@@ -10,7 +9,7 @@ usage() {
 Run install.sh in clean Linux containers (matrix style).
 
 Note: gum UI is disabled by default because CI/container logs often render
-raw ANSI/OSC control sequences. Use --gum only in a real interactive terminal.
+raw ANSI/OSC control sequences. The installer now auto-detects interactivity.
 
 Usage:
   bash scripts/test-install-matrix.sh [options]
@@ -18,8 +17,6 @@ Usage:
 Options:
   --mode dry-run|full     Test mode (default: dry-run)
   --image <docker-image>  Image to test (repeatable)
-  --gum                   Force gum UI
-  --no-gum                Disable gum UI (default)
   --help, -h              Show this help
 
 Examples:
@@ -38,14 +35,6 @@ while [[ $# -gt 0 ]]; do
     --image)
       IMAGES+=("$2")
       shift 2
-      ;;
-    --gum)
-      USE_GUM=1
-      shift
-      ;;
-    --no-gum)
-      USE_GUM=0
-      shift
       ;;
     --help|-h)
       usage
@@ -101,11 +90,6 @@ build_install_args() {
   if [[ "$MODE" == "dry-run" ]]; then
     INSTALL_ARGS+=(--dry-run)
   fi
-  if [[ "$USE_GUM" == "1" ]]; then
-    INSTALL_ARGS+=(--gum)
-  else
-    INSTALL_ARGS+=(--no-gum)
-  fi
 }
 
 run_case() {
@@ -125,7 +109,6 @@ run_case() {
   echo "============================================================"
   echo "Image: $image"
   echo "Mode:  $MODE"
-  echo "GUM:   $([[ "$USE_GUM" == "1" ]] && echo on || echo off)"
   echo "============================================================"
 
   docker run --rm -t \

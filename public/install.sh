@@ -87,9 +87,6 @@ is_non_interactive_shell() {
 }
 
 gum_is_tty() {
-    if is_non_interactive_shell; then
-        return 1
-    fi
     if [[ -n "${NO_COLOR:-}" ]]; then
         return 1
     fi
@@ -142,20 +139,13 @@ bootstrap_gum_temp() {
     GUM_STATUS="skipped"
     GUM_REASON=""
 
-    if [[ "$OPENCLAW_USE_GUM" == "auto" ]] && is_non_interactive_shell; then
+    if is_non_interactive_shell; then
         GUM_REASON="non-interactive shell (auto-disabled)"
         return 1
     fi
 
-    case "$OPENCLAW_USE_GUM" in
-        0|false|False|FALSE|off|OFF|no|NO)
-            GUM_REASON="disabled via OPENCLAW_USE_GUM"
-            return 1
-            ;;
-    esac
-
     if ! gum_is_tty; then
-        GUM_REASON="not a TTY"
+        GUM_REASON="terminal does not support gum UI"
         return 1
     fi
 
@@ -164,13 +154,6 @@ bootstrap_gum_temp() {
         GUM_STATUS="found"
         GUM_REASON="already installed"
         return 0
-    fi
-
-    if [[ "$OPENCLAW_USE_GUM" != "1" && "$OPENCLAW_USE_GUM" != "true" && "$OPENCLAW_USE_GUM" != "TRUE" ]]; then
-        if [[ "$OPENCLAW_USE_GUM" != "auto" ]]; then
-            GUM_REASON="invalid OPENCLAW_USE_GUM value: $OPENCLAW_USE_GUM"
-            return 1
-        fi
     fi
 
     if ! command -v tar >/dev/null 2>&1; then
@@ -706,17 +689,50 @@ extract_first_npm_error_line() {
     grep -E 'npm (ERR!|error)|ERR!' "$log" | head -n1 || true
 }
 
+extract_npm_error_code() {
+    local log="$1"
+    sed -n -E 's/^npm (ERR!|error) code[[:space:]]+([^[:space:]]+).*$/\2/p' "$log" | head -n1
+}
+
+extract_npm_error_syscall() {
+    local log="$1"
+    sed -n -E 's/^npm (ERR!|error) syscall[[:space:]]+(.+)$/\2/p' "$log" | head -n1
+}
+
+extract_npm_error_errno() {
+    local log="$1"
+    sed -n -E 's/^npm (ERR!|error) errno[[:space:]]+(.+)$/\2/p' "$log" | head -n1
+}
+
 print_npm_failure_diagnostics() {
     local spec="$1"
     local log="$2"
     local debug_log=""
     local first_error=""
+    local error_code=""
+    local error_syscall=""
+    local error_errno=""
 
     ui_warn "npm install failed for ${spec}"
     if [[ -n "${LAST_NPM_INSTALL_CMD}" ]]; then
         echo "  Command: ${LAST_NPM_INSTALL_CMD}"
     fi
     echo "  Installer log: ${log}"
+
+    error_code="$(extract_npm_error_code "$log")"
+    if [[ -n "$error_code" ]]; then
+        echo "  npm code: ${error_code}"
+    fi
+
+    error_syscall="$(extract_npm_error_syscall "$log")"
+    if [[ -n "$error_syscall" ]]; then
+        echo "  npm syscall: ${error_syscall}"
+    fi
+
+    error_errno="$(extract_npm_error_errno "$log")"
+    if [[ -n "$error_errno" ]]; then
+        echo "  npm errno: ${error_errno}"
+    fi
 
     debug_log="$(extract_npm_debug_log_path "$log" || true)"
     if [[ -n "$debug_log" ]]; then
@@ -907,7 +923,6 @@ map_legacy_env "OPENCLAW_GIT_UPDATE" "CLAWDBOT_GIT_UPDATE"
 map_legacy_env "OPENCLAW_NPM_LOGLEVEL" "CLAWDBOT_NPM_LOGLEVEL"
 map_legacy_env "OPENCLAW_VERBOSE" "CLAWDBOT_VERBOSE"
 map_legacy_env "OPENCLAW_PROFILE" "CLAWDBOT_PROFILE"
-map_legacy_env "OPENCLAW_USE_GUM" "CLAWDBOT_USE_GUM"
 map_legacy_env "OPENCLAW_INSTALL_SH_NO_RUN" "CLAWDBOT_INSTALL_SH_NO_RUN"
 
 pick_tagline() {
@@ -943,7 +958,6 @@ SHARP_IGNORE_GLOBAL_LIBVIPS="${SHARP_IGNORE_GLOBAL_LIBVIPS:-1}"
 NPM_LOGLEVEL="${OPENCLAW_NPM_LOGLEVEL:-error}"
 NPM_SILENT_FLAG="--silent"
 VERBOSE="${OPENCLAW_VERBOSE:-0}"
-OPENCLAW_USE_GUM="${OPENCLAW_USE_GUM:-auto}"
 OPENCLAW_BIN=""
 PNPM_CMD=()
 HELP=0
@@ -967,8 +981,6 @@ Options:
   --no-prompt                           Disable prompts (required in CI/automation)
   --dry-run                             Print what would happen (no changes)
   --verbose                             Print debug output (set -x, npm verbose)
-  --gum                                 Force gum UI if possible
-  --no-gum                              Disable gum UI
   --help, -h                            Show this help
 
 Environment variables:
@@ -981,7 +993,6 @@ Environment variables:
   OPENCLAW_DRY_RUN=1
   OPENCLAW_NO_ONBOARD=1
   OPENCLAW_VERBOSE=1
-  OPENCLAW_USE_GUM=auto|1|0           Default: auto (try gum on interactive TTY)
   OPENCLAW_NPM_LOGLEVEL=error|warn|notice  Default: error (hide npm deprecation noise)
   SHARP_IGNORE_GLOBAL_LIBVIPS=0|1    Default: 1 (avoid sharp building against global libvips)
 
@@ -1009,14 +1020,6 @@ parse_args() {
                 ;;
             --verbose)
                 VERBOSE=1
-                shift
-                ;;
-            --gum)
-                OPENCLAW_USE_GUM=1
-                shift
-                ;;
-            --no-gum)
-                OPENCLAW_USE_GUM=0
                 shift
                 ;;
             --no-prompt)
@@ -1226,6 +1229,23 @@ node_major_version() {
     return 1
 }
 
+print_active_node_paths() {
+    if ! command -v node &> /dev/null; then
+        return 1
+    fi
+    local node_path node_version npm_path npm_version
+    node_path="$(command -v node 2>/dev/null || true)"
+    node_version="$(node -v 2>/dev/null || true)"
+    ui_info "Active Node.js: ${node_version:-unknown} (${node_path:-unknown})"
+
+    if command -v npm &> /dev/null; then
+        npm_path="$(command -v npm 2>/dev/null || true)"
+        npm_version="$(npm -v 2>/dev/null || true)"
+        ui_info "Active npm: ${npm_version:-unknown} (${npm_path:-unknown})"
+    fi
+    return 0
+}
+
 ensure_macos_node22_active() {
     if [[ "$OS" != "macos" ]]; then
         return 0
@@ -1265,6 +1285,7 @@ check_node() {
         NODE_VERSION="$(node_major_version || true)"
         if [[ -n "$NODE_VERSION" && "$NODE_VERSION" -ge 22 ]]; then
             ui_success "Node.js v$(node -v | cut -d'v' -f2) found"
+            print_active_node_paths || true
             return 0
         else
             if [[ -n "$NODE_VERSION" ]]; then
@@ -1290,6 +1311,7 @@ install_node() {
             exit 1
         fi
         ui_success "Node.js installed"
+        print_active_node_paths || true
     elif [[ "$OS" == "linux" ]]; then
         ui_info "Installing Node.js via NodeSource"
         require_sudo
@@ -1341,6 +1363,7 @@ install_node() {
         fi
 
         ui_success "Node.js v22 installed"
+        print_active_node_paths || true
     fi
 }
 

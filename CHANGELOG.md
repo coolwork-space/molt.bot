@@ -2,9 +2,9 @@
 
 ## 2026-02-22
 
-- Installer: auto-disable gum UI/spinners in non-interactive shells (`OPENCLAW_USE_GUM=auto`) to reduce `ioctl` noise in piped/SSH installs.
-- Installer: after macOS `node@22` Homebrew install, force-check active `node` major and fail with explicit PATH remediation if shell still resolves an older Node.
-- Installer: add actionable npm failure diagnostics (exact install command, installer log path, npm debug log path, first npm error line) before retries.
+- Installer: make gum behavior fully automatic (interactive TTYs get gum, headless shells get plain status), and remove manual gum toggles.
+- Installer: after macOS `node@22` Homebrew install, force-check active `node` major, print active `node`/`npm` paths, and fail with explicit PATH remediation if shell still resolves an older Node.
+- Installer: strengthen npm failure diagnostics with parsed `code`/`syscall`/`errno`, exact install command, installer log path, npm debug log path, and first npm error line.
 - CI/Tests: expand `install.sh` unit coverage for non-interactive gum disable, macOS Node PATH activation guard, and npm diagnostics parsing/output.
 - Triage: close duplicate installer issue `openclaw/openclaw#23069` in favor of `openclaw/openclaw#23066` to keep ioctl troubleshooting centralized.
 
@@ -22,7 +22,7 @@
 
 ## 2026-02-10
 
-- Installer: modernize `install.sh` UX with staged progress, quieter command output, optional gum UI controls (`--gum`, `--no-gum`, `OPENCLAW_USE_GUM`, `CLAWDBOT_USE_GUM`), and verified-only temporary gum bootstrap (#50, thanks @sebslight).
+- Installer: modernize `install.sh` UX with staged progress, quieter command output, optional gum UI controls, and verified-only temporary gum bootstrap (#50, thanks @sebslight).
 - CI: add Linux installer matrix workflow and runner script for dry-run/full validation across distro images (#50, thanks @sebslight).
 ## 2026-01-27
 
